@@ -1,1 +1,8 @@
+<mat-toolbar class="content">
+  <a routerLink="/"><span>{{ 'title' | translate }}</span></a>
+</mat-toolbar>
+<app-breadcrumbs></app-breadcrumbs>
+<div style="height: .25rem">
+  <mat-progress-bar *ngIf="isLoading$()" mode="indeterminate"></mat-progress-bar>
+</div>
 <router-outlet></router-outlet>

@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { CollectionComponent } from './collection.component';
+import { CollectionComponent } from '@app/components';
 import { provideMockStore } from '@ngrx/store/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('CollectionComponent', () => {
   let component: CollectionComponent;
@@ -11,8 +11,7 @@ describe('CollectionComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [provideMockStore()],
-      declarations: [CollectionComponent],
-      imports: [RouterTestingModule.withRoutes([])]
+      imports: [RouterModule.forRoot([]), CollectionComponent, TranslateModule.forRoot()]
     }).compileComponents();
   });
 

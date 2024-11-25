@@ -35,4 +35,7 @@ export interface IPhoto {
   };
   likes: number;
   views: number;
+  alternative_slugs?: {
+    [key: string]: string;
+  }
 }

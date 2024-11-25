@@ -1,31 +1,16 @@
-<!-- toDo Could you optimise this piece of code? -->
-<mat-toolbar>
-  <span>Redstor FE Challenger</span>
-</mat-toolbar>
-
-<!-- toDo Could you optimise this piece of code? -->
-<div class="breadcrumbs">
-  <a routerLink="/"><span>Collections</span></a>
-  <span>></span>
-  <a class="active"><span>Collection</span></a>
-</div>
-
 <div class="layout-container">
-  <!-- toDo Could you optimise this piece of code? -->
-  <mat-progress-bar *ngIf="isLoading$ | async"></mat-progress-bar>
-
   <div class="gallery">
-    <!-- toDO Could you improve the styling to be responsive? -->
-    <ng-container *ngFor="let photo of photos$ | async">
-      <mat-card class="gallery-item thumbnails" (click)="handleGotoPhoto(photo)">
-        <img mat-card-image [src]="photo.urls.small" [alt]="photo.alt_description" />
-        <mat-card-content fxLayout="row" fxLayoutAlign="end" fxLayoutGap="12px">
-          <p>
+    @if (photos$().length > 0) {
+      @for (photo of photos$(); track photo.id) {
+        <app-image-card [url]="['photo', photo.id]"
+                        [imageSrc]="photo.urls.small"
+                        [alt]="photo.alternative_slugs?.[currentLanguage$()] ?? photo.alt_description">
+          <p class="center-icon-text">
             <mat-icon inline>favorite</mat-icon>
-            {{ photo.likes }} likes
+            {{ photo.likes }} {{ 'card.likes' | translate }}
           </p>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
+        </app-image-card>
+      }
+    }
   </div>
 </div>

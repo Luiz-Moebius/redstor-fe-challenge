@@ -9,8 +9,9 @@ export class CollectionsFacade {
   private readonly store: Store = inject(Store);
 
   readonly collections$: Signal<ICollection[]> = this.store.selectSignal(CollectionsSelectors.selectCollections);
+  readonly total$: Signal<number> = this.store.selectSignal(CollectionsSelectors.selectTotal);
 
-  loadCollections() {
-    this.store.dispatch(CollectionsActions.loadCollections());
+  loadCollections(page: number, perPage: number) {
+    this.store.dispatch(CollectionsActions.loadCollections({ page, perPage }));
   }
 }

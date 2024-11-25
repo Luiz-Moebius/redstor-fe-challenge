@@ -1,53 +1,40 @@
-<!-- toDo Could you optimise this piece of code? -->
-<mat-toolbar>
-  <span>Redstor FE Challenger</span>
-</mat-toolbar>
-
-<!-- toDo Could you optimise this piece of code? -->
-<div class="breadcrumbs">
-  <a routerLink="/"><span>Collections</span></a>
-  <span>></span>
-  <a (click)="handleGotoCollection()"><span>Collection</span></a>
-  <span>></span>
-  <a class="active"><span>Photo</span></a>
-</div>
-
 <div class="layout-container">
-  <!-- toDo Could you optimise this piece of code? -->
-  <mat-progress-bar *ngIf="isLoading$ | async"></mat-progress-bar>
+  <div class="gallery" style="height: 80vh">
+    @if (photo$(); as photo) {
+      <mat-card class="preview" style="height: 100%; width: 100%">
+        <mat-card-header>
+          <img mat-card-avatar [ngSrc]="photo.user.profile_image.medium" alt="" height="40" width="40"
+               style="object-fit: cover" />
+          <mat-card-title>{{ photo.user.first_name }} {{ photo.user.last_name }}</mat-card-title>
+          @if(photo.user.location){
+            <mat-card-subtitle>
+              <mat-icon inline>where_to_vote</mat-icon>
+              {{ photo.user.location }}
+            </mat-card-subtitle>
+          }
+        </mat-card-header>
 
-  <div class="gallery" fxLayout.sm="column">
-    <!-- toDO Could you improve the styling to be responsive? -->
-    <mat-card *ngIf="photo$ | async as photo" class="preview">
-      <!-- toDO Why is throwing some console errors? -->
-
-      <mat-card-header>
-        <img mat-card-avatar [src]="photo.user.profile_image.medium" />
-        <mat-card-title>{{ photo.user.first_name }} {{ photo.user.last_name }}</mat-card-title>
-        <mat-card-subtitle *ngIf="photo.user.location">
-          <mat-icon inline>where_to_vote</mat-icon>
-          {{ photo.user.location }}
-        </mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div>
+        <mat-card-content>
           <div>
-            <!-- toDO Is there another way to do this operation? -->
-            <p>{{ photo.description?.charAt(0)?.toUpperCase() }}{{ photo.description?.slice(1) }}</p>
-          </div>
-          <div fxLayout="row" fxLayoutGap="12px" fxLayoutAlign="end">
-            <p fxLayoutAlign="center">
+            <div>
+              <p>{{ photo.description | titlecase }}</p>
+            </div>
+            <p class="center-icon-text" style="justify-content: flex-end">
               <mat-icon inline>favorite</mat-icon>
-              {{ photo.likes }} likes &nbsp;|&nbsp;&nbsp;
+              {{ photo.likes }} {{ 'card.likes' | translate}} &nbsp;|&nbsp;&nbsp;
               <mat-icon inline>visibility</mat-icon>
-              {{ photo.views }} views
+              {{ photo.views }} {{ 'card.views' | translate }}
             </p>
           </div>
+        </mat-card-content>
+        <div mat-card-image style="overflow: hidden; height: 100%">
+          <img [ngSrc]="photo.urls.regular"
+               [alt]="photo.alternative_slugs?.[currentLanguage$()] ?? photo.alt_description"
+               style="height: 100%; object-fit: contain; position: relative; background-color: black"
+               fill priority />
         </div>
-      </mat-card-content>
-
-      <img mat-card-image [src]="photo.urls.full" [alt]="photo.alt_description" />
-    </mat-card>
+          <a [href]="photo.urls.full" target="_blank" class="open-in-new" aria-label="open full sized image in new tab"><mat-icon>open_in_new</mat-icon></a>
+      </mat-card>
+    }
   </div>
 </div>

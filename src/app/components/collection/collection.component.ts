@@ -1,35 +1,49 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { IPhoto } from '@app/interfaces';
 import { UnsplashService } from '@app/services';
+import { MatIcon } from '@angular/material/icon';
+import { ImageCardComponent } from '@app/components/reusable-components/image-card/image-card.component';
+import { LoadingFacade } from '@app/store/loading';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-collection',
   templateUrl: './collection.component.html',
+  standalone: true,
+  imports: [
+    ImageCardComponent,
+    MatIcon,
+    TranslatePipe,
+    ImageCardComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionComponent implements OnInit {
-  private readonly unsplashService: UnsplashService = inject(UnsplashService);
-  private readonly router: Router = inject(Router);
-  private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
 
-  readonly photos$: BehaviorSubject<IPhoto[]> = new BehaviorSubject<IPhoto[]>([]);
-  // toDo Is there another way using new Angular features to replace rjxs
-  readonly isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly unsplashService: UnsplashService = inject(UnsplashService);
+  private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+  private readonly loadingFacade = inject(LoadingFacade);
+  private readonly translationService = inject(TranslateService);
+
+  photos$ = signal<IPhoto[]>([] as IPhoto[]);
+  currentLanguage$ = toSignal(
+    this.translationService.onLangChange.pipe(map(e => e.lang)),
+    {initialValue: this.translationService.currentLang},
+  );
 
   ngOnInit(): void {
-    this.isLoading$.next(true);
-    const collectionId = this.activatedRoute.snapshot.params['collectionId'];
-
-    this.unsplashService.listCollectionPhotos(collectionId).subscribe(photos => {
-      this.photos$.next(photos?.response?.results || []);
-      this.isLoading$.next(false);
-    });
+    this.loadPhotos();
   }
 
-  handleGotoPhoto(photo: IPhoto) {
+  private loadPhotos() {
+    this.loadingFacade.startLoading('loadCollection');
     const collectionId = this.activatedRoute.snapshot.params['collectionId'];
-    return this.router.navigate(['collection', collectionId, 'photo', photo.id]);
+    this.unsplashService.listCollectionPhotos(collectionId).subscribe(photos => {
+      this.photos$.set(photos?.response?.results ?? []);
+      this.loadingFacade.stopLoading('loadCollection');
+    });
   }
 }

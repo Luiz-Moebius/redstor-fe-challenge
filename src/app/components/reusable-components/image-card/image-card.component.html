@@ -1,0 +1,11 @@
+<mat-card class="gallery-item thumbnails" [routerLink]="url()">
+  <div mat-card-image class="image-container">
+      <img mat-card-image
+           [ngSrc]="imageSrc()"
+           [alt]="alt()"
+           fill priority />
+  </div>
+  <mat-card-content class="card-content">
+    <ng-content></ng-content>
+  </mat-card-content>
+</mat-card>

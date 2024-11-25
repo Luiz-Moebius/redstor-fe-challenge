@@ -1,0 +1,19 @@
+{
+  "title": "Redstor FE Challenger",
+  "breadcrumbs": {
+    "collections": "collections",
+    "collection": "collection",
+    "photo": "photo"
+  },
+  "card": {
+    "likes": "likes",
+    "views": "views"
+  },
+  "pagination": {
+    "per_page": "Items per page:",
+    "next_page": "Next page",
+    "previous_page": "Previous page",
+    "first_page": "First page",
+    "last_page": "Last page"
+  }
+}

@@ -1,33 +1,50 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IPhoto } from '@app/interfaces';
 import { UnsplashService } from '@app/services';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { MatCardModule } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { NgOptimizedImage, TitleCasePipe } from '@angular/common';
+import { LoadingFacade } from '@app/store/loading';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-// toDo Is there a way to improve the rendering strategy in this component?
 @Component({
   selector: 'app-photo',
-  templateUrl: './photo.component.html'
+  templateUrl: './photo.component.html',
+  styles: ['.open-in-new { display: flex; text-decoration: none; color: inherit; position: absolute; bottom: 3%; right: 3%; background-color: #fafafa; padding: .5rem; border-radius: 100%}'],
+  standalone: true,
+  imports: [
+    RouterLink,
+    MatCardModule,
+    MatIcon,
+    NgOptimizedImage,
+    TitleCasePipe,
+    TranslatePipe
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PhotoComponent implements OnInit {
-  private readonly unsplashService: UnsplashService = inject(UnsplashService);
-  private readonly router: Router = inject(Router);
-  private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+export class PhotoComponent {
+  private readonly unsplashService = inject(UnsplashService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly loadingFacade = inject(LoadingFacade);
+  private readonly translationService = inject(TranslateService);
 
-  readonly photo$: BehaviorSubject<IPhoto> = new BehaviorSubject<IPhoto>({} as IPhoto);
-  readonly isLoading$: Observable<boolean> = this.photo$.pipe(map(p => !p));
+  photo$ = toSignal(this.activatedRoute.params.pipe(
+    switchMap(params => {
+      const photId = params['photoId'];
+      this.loadingFacade.startLoading('loadPhoto');
+      return this.unsplashService.getPhoto(photId).pipe(
+        map(apiResponse => apiResponse.response as IPhoto & typeof apiResponse.response),
+        catchError(_error => of(null)),
+        finalize(() => this.loadingFacade.stopLoading('loadPhoto'))
+      )
+    })
+  ))
 
-  ngOnInit(): void {
-    const photoId = this.activatedRoute.snapshot.params['photoId'];
-
-    this.unsplashService.getPhoto(photoId).subscribe(photo => {
-      // toDo Is there a better way to improve this object mapping?
-      this.photo$.next(photo.response as unknown as IPhoto);
-    });
-  }
-
-  handleGotoCollection() {
-    const collectionId = this.activatedRoute.snapshot.params['collectionId'];
-    return this.router.navigate(['collection', collectionId]);
-  }
+  currentLanguage$ = toSignal(
+    this.translationService.onLangChange.pipe(map(e => e.lang)),
+    {initialValue: this.translationService.currentLang},
+  );
 }

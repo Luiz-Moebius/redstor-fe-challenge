@@ -1,0 +1,10 @@
+<div class="breadcrumbs">
+  @for (breadcrumb of breadcrumbs$(); track breadcrumb.label; let last = $last) {
+    @if (last) {
+      <a class="active" [routerLink]="breadcrumb.url"><span>{{ 'breadcrumbs.' + breadcrumb.label | translate }}</span></a>
+    } @else {
+      <a [routerLink]="breadcrumb.url"><span>{{ 'breadcrumbs.' + breadcrumb.label | translate }}</span></a>
+      <span>></span>
+    }
+  }
+</div>

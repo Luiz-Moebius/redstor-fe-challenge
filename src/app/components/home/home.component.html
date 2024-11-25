@@ -1,27 +1,22 @@
-<!-- toDo Could you optimise this piece of code? -->
-<mat-toolbar>
-  <span>Redstor FE Challenger</span>
-</mat-toolbar>
-
-<!-- toDo Could you optimise this piece of code? -->
-<div class="breadcrumbs">
-  <a class="active"><span>Collections</span></a>
-</div>
-
 <div class="layout-container">
-  <!-- toDo Could you optimise this piece of code? -->
-  <mat-progress-bar *ngIf="isLoading"></mat-progress-bar>
+  <mat-paginator
+    [length]="totalItems$()"
+    [pageIndex]="pageIndex$()"
+    [pageSize]="pageSize$()"
+    [pageSizeOptions]="[6, 9, 12]"
+    (page)="pageChangeEvent($event)"
+    aria-label="collections page">
+  </mat-paginator>
 
   <div class="gallery">
-    <!-- toDo Is there another way to rewrite this with new Angular 17 features? -->
-    <ng-container *ngFor="let collection of collections">
-      <!-- toDO Could you improve the styling to be responsive? -->
-      <mat-card class="gallery-item thumbnails" [routerLink]="'/collection/' + collection.id">
-        <img mat-card-image [src]="collection.cover_photo.urls.small" [alt]="collection.cover_photo.description" />
-        <mat-card-content>
+    @if (collections$().length > 0) {
+      @for (collection of collections$(); track collection.id) {
+        <app-image-card [url]="['collection', collection.id]"
+                        [imageSrc]="collection.cover_photo.urls.small"
+                        [alt]="collection.cover_photo.description || ''">
           <p class="title">{{ collection.title }}</p>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
+        </app-image-card>
+      }
+    }
   </div>
 </div>

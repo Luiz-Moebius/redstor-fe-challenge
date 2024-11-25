@@ -1,30 +1,43 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { ICollection } from '@app/interfaces';
-import { UnsplashService } from '@app/services';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { CollectionsFacade } from '@app/store';
+import { ImageCardComponent } from '@app/components/reusable-components/image-card/image-card.component';
 
-// toDo Transform this module in a standalone component
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
+  standalone: true,
+  imports: [
+    MatPaginator,
+    ImageCardComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit {
-  readonly unsplashService: UnsplashService = inject(UnsplashService);
 
-  // toDo Why the changes are not reflected in the UI?
-  isLoading: boolean = false;
-  collections: ICollection[] = [];
+  collectionsFacade = inject(CollectionsFacade);
+
+  collections$ = this.collectionsFacade.collections$;
+  totalItems$ = this.collectionsFacade.total$;
+  pageIndex$ = signal<number>(0);
+  pageSize$ = signal<number>(9);
+
+  // Todo Using effect  you could replace the need for ngOnInit and loadCollections call in pageChangeEvent,
+  //  but it's not recommended to be used for this purpose, although in Angular v19 they introduced
+  //  the new Resource API that should be used in this scenario
+  // constructor() {
+  //   effect(() => {
+  //     this.collectionsFacade.loadCollections(this.pageIndex$() + 1, this.pageSize$())
+  //   });
+  // }
 
   ngOnInit(): void {
-    // toDo Improve this call using the store (ngrx)
-    this.isLoading = true;
+    this.collectionsFacade.loadCollections(this.pageIndex$() + 1, this.pageSize$());
+  }
 
-    // toDo What's happening with this subscription in case the component is destroyed?
-    // toDo Is there another way to do this operation?
-    // toDo Could we add a pagination?
-    this.unsplashService.listCollections().subscribe(collections => {
-      this.collections = collections?.response?.results || [];
-      this.isLoading = false;
-    });
+  pageChangeEvent(event: PageEvent) {
+    this.pageIndex$.set(event.pageIndex);
+    this.pageSize$.set(event.pageSize);
+    this.collectionsFacade.loadCollections(this.pageIndex$() + 1, this.pageSize$());
   }
 }

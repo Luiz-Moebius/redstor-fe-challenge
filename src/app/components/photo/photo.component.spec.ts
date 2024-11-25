@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PhotoComponent } from './photo.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
+import { RouterModule } from '@angular/router';
 
 describe('PhotoComponent', () => {
   let component: PhotoComponent;
@@ -11,8 +12,8 @@ describe('PhotoComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [provideMockStore()],
-      declarations: [PhotoComponent],
-      imports: [RouterTestingModule.withRoutes([])]
+      declarations: [],
+      imports: [RouterModule.forRoot([]), PhotoComponent, TranslateModule.forRoot()]
     }).compileComponents();
   });
 
